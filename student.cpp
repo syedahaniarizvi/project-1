@@ -1,155 +1,169 @@
-#include <stdio.h>
-#include <string.h>
+#include <iostream>
+#include <vector>
+#include <string>
+#include <iomanip>
+using namespace std;
 
-struct Student {
+class Student {
+private:
     int studentID;
-    char name[50];
+    string name;
     int age;
-    char grade[5];
+    string grade;
+
+public:
+    // Constructor
+    Student(int id, string n, int a, string g) : studentID(id), name(n), age(a), grade(g) {}
+
+    // Accessor functions
+    int getID() const { return studentID; }
+    string getName() const { return name; }
+    int getAge() const { return age; }
+    string getGrade() const { return grade; }
+
+    // Mutator functions
+    void setName(string n) { name = n; }
+    void setAge(int a) { age = a; }
+    void setGrade(string g) { grade = g; }
+
+    // Display function
+    void display() const {
+        cout << setw(6) << studentID << " | " << setw(20) << name << " | " << setw(3) 
+             << age << " | " << setw(5) << grade << endl;
+    }
 };
 
-void addStudent(struct Student students[], int *count);
-void displayStudents(struct Student students[], int count);
-void searchStudent(struct Student students[], int count);
-void updateStudent(struct Student students[], int count);
+// Function prototypes
+void addStudent(vector<Student>& students);
+void displayStudents(const vector<Student>& students);
+void searchStudent(const vector<Student>& students);
+void updateStudent(vector<Student>& students);
 
 int main() {
-    struct Student students[100];
-    int choice, studentCount = 0;
-    
+    vector<Student> students;
+    int choice;
+
     do {
-        printf("\nStudent Management System\n");
-        printf("1. Add Student\n");
-        printf("2. Display All Students\n");
-        printf("3. Search Student by ID\n");
-        printf("4. Update Student Details\n");
-        printf("5. Exit\n");
-        printf("Enter your choice: ");
-        scanf("%d", &choice);
-        getchar();  // To consume the newline character
-        
+        cout << "\nStudent Management System\n";
+        cout << "1. Add Student\n";
+        cout << "2. Display All Students\n";
+        cout << "3. Search Student by ID\n";
+        cout << "4. Update Student Details\n";
+        cout << "5. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+        cin.ignore(); // Clear input buffer
+
         switch (choice) {
             case 1:
-                addStudent(students, &studentCount);
+                addStudent(students);
                 break;
             case 2:
-                displayStudents(students, studentCount);
+                displayStudents(students);
                 break;
             case 3:
-                searchStudent(students, studentCount);
+                searchStudent(students);
                 break;
             case 4:
-                updateStudent(students, studentCount);
+                updateStudent(students);
                 break;
             case 5:
-                printf("Exiting program. Thank you!\n");
+                cout << "Exiting program. Thank you!\n";
                 break;
             default:
-                printf("Invalid choice! Please try again.\n");
+                cout << "Invalid choice! Please try again.\n";
         }
     } while (choice != 5);
-    
+
     return 0;
 }
 
-void addStudent(struct Student students[], int *count) {
-    struct Student newStudent;
-    
-    printf("Enter Student ID: ");
-    scanf("%d", &newStudent.studentID);
-    getchar();
-    printf("Enter Name: ");
-    fgets(newStudent.name, 50, stdin);
-    newStudent.name[strcspn(newStudent.name, "\n")] = '\0';  // Remove newline character
-    printf("Enter Age: ");
-    scanf("%d", &newStudent.age);
-    getchar();
-    printf("Enter Grade: ");
-    fgets(newStudent.grade, 5, stdin);
-    newStudent.grade[strcspn(newStudent.grade, "\n")] = '\0';  // Remove newline character
-    
-    students[*count] = newStudent;  // Add new student to the array
-    (*count)++;
-    
-    printf("Student added successfully!\n");
+void addStudent(vector<Student>& students) {
+    int id, age;
+    string name, grade;
+
+    cout << "Enter Student ID: ";
+    cin >> id;
+    cin.ignore(); // Clear input buffer
+    cout << "Enter Name: ";
+    getline(cin, name);
+    cout << "Enter Age: ";
+    cin >> age;
+    cin.ignore(); // Clear input buffer
+    cout << "Enter Grade: ";
+    getline(cin, grade);
+
+    students.emplace_back(id, name, age, grade);
+    cout << "Student added successfully!\n";
 }
 
-void displayStudents(struct Student students[], int count) {
-    if (count == 0) {
-        printf("No students available to display.\n");
-        return;
-    }
-    
-    printf("\nStudent Details:\n");
-    printf("ID    | Name                | Age | Grade\n");
-    printf("---------------------------------------------\n");
-    
-    for (int i = 0; i < count; i++) {
-        printf("%-6d | %-20s | %-3d | %-5s\n", students[i].studentID, students[i].name, students[i].age, students[i].grade);
-    }
-}
-
-void searchStudent(struct Student students[], int count) {
-    if (count == 0) {
-        printf("No students to search.\n");
+void displayStudents(const vector<Student>& students) {
+    if (students.empty()) {
+        cout << "No students available to display.\n";
         return;
     }
 
-    int searchID, found = 0;
-    printf("Enter Student ID to search: ");
-    scanf("%d", &searchID);
+    cout << "\nStudent Details:\n";
+    cout << "ID    | Name                | Age | Grade\n";
+    cout << "---------------------------------------------\n";
 
-    for (int i = 0; i < count; i++) {
-        if (students[i].studentID == searchID) {
-            printf("\nStudent Found!\n");
-            printf("ID: %d\n", students[i].studentID);
-            printf("Name: %s\n", students[i].name);
-            printf("Age: %d\n", students[i].age);
-            printf("Grade: %s\n", students[i].grade);
-            found = 1;
-            break;
+    for (const auto& student : students) {
+        student.display();
+    }
+}
+
+void searchStudent(const vector<Student>& students) {
+    if (students.empty()) {
+        cout << "No students to search.\n";
+        return;
+    }
+
+    int id;
+    cout << "Enter Student ID to search: ";
+    cin >> id;
+
+    for (const auto& student : students) {
+        if (student.getID() == id) {
+            cout << "\nStudent Found!\n";
+            student.display();
+            return;
         }
     }
-    
-    if (!found) {
-        printf("Student with ID %d not found.\n", searchID);
-    }
+
+    cout << "Student with ID " << id << " not found.\n";
 }
 
-void updateStudent(struct Student students[], int count) {
-    if (count == 0) {
-        printf("No students to update.\n");
+void updateStudent(vector<Student>& students) {
+    if (students.empty()) {
+        cout << "No students to update.\n";
         return;
     }
-    
-    int searchID, found = 0;
-    printf("Enter Student ID to update: ");
-    scanf("%d", &searchID);
-    
-    for (int i = 0; i < count; i++) {
-        if (students[i].studentID == searchID) {
-            printf("\nStudent Found! Enter new details.\n");
-            
-            printf("Enter Name: ");
-            getchar();  // To consume the leftover newline
-            fgets(students[i].name, 50, stdin);
-            students[i].name[strcspn(students[i].name, "\n")] = '\0';
-            
-            printf("Enter Age: ");
-            scanf("%d", &students[i].age);
-            
-            printf("Enter Grade: ");
-            getchar();  // To consume the leftover newline
-            fgets(students[i].grade, 5, stdin);
-            students[i].grade[strcspn(students[i].grade, "\n")] = '\0';
-            
-            printf("Student details updated successfully!\n");
-            found = 1;
-            break;
+
+    int id, age;
+    string name, grade;
+    cout << "Enter Student ID to update: ";
+    cin >> id;
+    cin.ignore(); // Clear input buffer
+
+    for (auto& student : students) {
+        if (student.getID() == id) {
+            cout << "Student Found! Enter new details.\n";
+            cout << "Enter Name: ";
+            getline(cin, name);
+            cout << "Enter Age: ";
+            cin >> age;
+            cin.ignore(); // Clear input buffer
+            cout << "Enter Grade: ";
+            getline(cin, grade);
+
+            student.setName(name);
+            student.setAge(age);
+            student.setGrade(grade);
+
+            cout << "Student details updated successfully!\n";
+            return;
         }
     }
-    
-    if (!found) {
-        printf("Student with ID %d not found.\n", searchID);
-    }
+
+    cout << "Student with ID " << id << " not found.\n";
 }
